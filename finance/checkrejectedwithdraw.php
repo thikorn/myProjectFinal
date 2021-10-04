@@ -1,0 +1,167 @@
+<?php 
+    require_once('../connection.php');
+    session_start();
+    if (isset($_REQUEST['update_ids'])) {
+        try {
+            $ids = $_REQUEST['update_ids'];
+            $nameback = $_REQUEST['nameback'];
+            $check = $_REQUEST['check'];
+
+            if($check=="check51"){
+                $numcheck = 1;
+            }else if($check=="check52"){
+                $numcheck = 2;
+            }else if($check=="check53"){
+                $numcheck = 3;
+            }else if($check=="check54"){
+                $numcheck = 4;
+            }else if($check=="check55"){
+                $numcheck = 5;
+            }
+
+            $select_stmt = $db->prepare("SELECT * FROM finance WHERE ids = :ids");
+            $select_stmt->bindParam(':ids', $ids);
+            $select_stmt->execute();
+            $row = $select_stmt->fetch(PDO::FETCH_ASSOC);
+            extract($row);
+        } catch(PDOException $e) {
+            $e->getMessage();
+        }
+    }
+
+    if (isset($_REQUEST['btn_update'])) {
+        $nameSubject_up = $_REQUEST['nameSubject'];
+        $nameTeacher_up = $_REQUEST['nameTeacher'];
+
+        if (empty($nameSubject_up)) {
+            $errorMsg = "กรุณากรอกชื่อวิชา";
+        } else if (empty($nameTeacher_up)) {
+            $errorMsg = "กรุณากรอกชื่อผู้สอน";
+        } else {
+            try {
+                if (!isset($errorMsg)) {
+                    $successcheck = $_REQUEST['checksuccess'];
+                    $update_stmt = $db->prepare("UPDATE finance SET nameSubject = :nameSubject_up, nameTeacher = :nameTeacher_up, $check = :check1 WHERE ids = :ids");
+                    $update_stmt->bindParam(':nameSubject_up', $nameSubject_up);
+                    $update_stmt->bindParam(':nameTeacher_up', $nameTeacher_up);
+                    $update_stmt->bindParam(':check1', $successcheck);
+                    $update_stmt->bindParam(':ids', $ids);
+
+                    if ($update_stmt->execute()) {
+                        $updateMsg = "แก้ไขสำเร็จ";
+                        header("refresh:2; $nameback");
+                    }
+                }
+            } catch(PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+    }
+
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="bootstrap/bootstrap.css">
+
+<?php include('../decorate_style.php') ?>
+</head>
+<body>
+<?php include('decorate_infinance.php') ?>
+
+<?php include('../decorate_department.php') ?> 
+
+<div style="margin-left:28%;height:1000px;padding-top:2%">
+    <div class="container">
+    <div class="display-3 text-center">หน้าทบทวน</div>
+
+    <?php 
+         if (isset($errorMsg)) {
+    ?>
+        <div class="alert alert-danger">
+            <strong>Wrong! <?php echo $errorMsg; ?></strong>
+        </div>
+    <?php } ?>
+    
+
+    <?php 
+         if (isset($updateMsg)) {
+    ?>
+        <div class="alert alert-success">
+            <strong>Success! <?php echo $updateMsg; ?></strong>
+        </div>
+    <?php } ?>
+
+    <form method="post" class="form-horizontal mt-5">
+    <table cellspacing="8" cellpadding="8" style=" border:2px DASHED #8ABB39;background-color: #8ABB39" width=470><tbody><tr><td align="center" valign="middle" style="background-color: #A2CD5A"><table border="0" cellspacing="8" cellpadding="8" width=470 style=" background-color: #BCEE68"><tbody><tr><td align="center" style=" border:2px DASHED #CAFF70;background-color: #CAFF70"><font size=2>
+    <h4>สิ่งที่ต้องทบทวน คือ <?php echo $rejectedcheck1 ?></h4>
+    </td></tr></tbody></table></td></tr></tbody></table>
+    <br>
+            <div class="form-group text-center">
+                <div class="row">
+                    <label for="firstname" class="col-sm-3 control-label">ชื่อวิชา</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="nameSubject" class="form-control" value="<?php echo $nameSubject; ?>">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <div class="row">
+                    <label for="lastname" class="col-sm-3 control-label">ชื่ออาจารย์ผู้สอน</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="nameTeacher" class="form-control" value="<?php echo $nameTeacher; ?>">
+                    </div>
+                </div>
+            </div>
+
+                <div class="form-group text-center">
+                <div class="row">
+                    <label for="lastname" class="col-sm-3 control-label">เดือนที่เบิก(บรรยาย)</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="credit" class="form-control" value="<?php echo $monthwithdrawlec1; ?>">
+                    </div>
+                </div>
+            </div>
+                <div class="form-group text-center">
+                <div class="row">
+                    <label for="lastname" class="col-sm-3 control-label">จำนวนเงินที่เบิก(บรรยาย)</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="semester" class="form-control" value="<?php echo $amountwithdrawlec1; ?>">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <div class="row">
+                    <label for="lastname" class="col-sm-3 control-label">เดือนที่เบิก(ปฏิบัติ)</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="credit" class="form-control" value="<?php echo $monthwithdrawlab1; ?>">
+                    </div>
+                </div>
+            </div>
+                <div class="form-group text-center">
+                <div class="row">
+                    <label for="lastname" class="col-sm-3 control-label">จำนวนเงินที่เบิก(ปฏิบัติ)</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="semester" class="form-control" value="<?php echo $amountwithdrawlab1; ?>">
+                    </div>
+                </div>
+            </div>
+           
+            <div class="form-group text-center">
+                <div class="col-md-12 mt-3">
+                    <input type="submit" name="btn_update" class="btn btn-success" value="ยืนยัน">
+                    <a href="<?php echo $nameback ?>" class="btn btn-danger">ยกเลิก</a>
+                </div>
+            </div>
+           
+          
+    </form>
+    </div>
+
+</body>
+</html>

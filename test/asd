@@ -1,0 +1,69 @@
+<?php
+   
+    require_once '../connection.php';
+    session_start();
+   
+    if (isset($_POST['btn_addsubject'])) {
+        $code = $_POST['s_code'];
+        $yearnisit = $_POST['s_yearnisit'];
+        $name = $_POST['s_name'];
+	    $ov1 = $_POST['s_ov1'];
+        $semeter = $_POST['s_semeter'];
+        $year = $_POST['s_year'];
+        $credit = $_POST['s_credit'];
+        $hweekhe = $_POST['s_hweekhe'];
+        $hweekhp = $_POST['s_hweekhp'];
+        $classe = $_POST['s_classe'];
+        $classp = $_POST['s_classp'];
+
+        $date1 = $_POST['s_date1'];
+        $time1 = $_POST['s_time1'];
+        $time11 = $_POST['s_time11'];
+
+        $date2 = $_POST['s_date2'];
+        $time2 = $_POST['s_time2'];
+        $time22 = $_POST['s_time22'];
+
+        $date3 = $_POST['s_date3'];
+        $time3 = $_POST['s_time3'];
+        $time33 = $_POST['s_time33'];
+
+        $fiscaly = $_POST['s_fiscaly'];
+
+        try{
+            $select_stmt = $db->prepare("SELECT ids FROM subject WHERE ids = :ucode ");
+            $select_stmt->bindParam(":ucode", $code);
+            $select_stmt->execute();
+            $row = $select_stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($row['ids'] == $code) {
+                $_SESSION['error'] = "รหัสวิชาถูกบันทึกไว้อยู่แล้ว";
+                header("location:addsubject.php");
+            } else if (!isset($errorMsg)) {
+                $insert_stmt = $db->prepare("INSERT INTO subject(ids, nameSubject, credit, semester, yearSubject, dateTimeClass, fiscaYear, classLec, classLab, hourLec, hourLab, numberOv1) VALUES (:ucode, :uname, :ucredit, :usemeter, :uyear, :udate1, :ufiscaly, :uclasse, :uclassp, :uhweekhe, :uhweekhp, :uov1)");
+                $insert_stmt->bindParam(":ucode", $code);
+                $insert_stmt->bindParam(":uname", $name);
+                $insert_stmt->bindParam(":ucredit", $credit);
+                $insert_stmt->bindParam(":usemeter", $semeter);
+                $insert_stmt->bindParam(":uyear", $year);
+                $insert_stmt->bindParam(":udate1", $date1);
+                $insert_stmt->bindParam(":ufiscaly", $fiscaly);
+                $insert_stmt->bindParam(":uhweekhe",  $hweekhe);
+                $insert_stmt->bindParam(":uhweekhp",  $hweekhp);
+                $insert_stmt->bindParam(":uclasse",  $classe);
+                $insert_stmt->bindParam(":uclassp",  $classp);
+                $insert_stmt->bindParam(":uov1",  $ov1);
+                
+                if ($insert_stmt->execute()) {
+                    $_SESSION['success'] = "Register Successfully...";
+                    header("location:finance_home.php");
+                }
+            }
+                  
+        }catch(PDOException $e) {
+            $e->getMessage();
+        }
+          
+    }
+
+?>
